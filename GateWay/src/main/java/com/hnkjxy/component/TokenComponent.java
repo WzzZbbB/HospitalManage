@@ -31,7 +31,7 @@ import static com.hnkjxy.service.MyUserDetailService.removePreFix;
 /**
  * @version: java version 17
  * @Author: Mr WzzZ
- * @description:
+ * @description: Token组件
  * @date: 2023-04-30 12:40
  */
 @Component

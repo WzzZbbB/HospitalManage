@@ -28,9 +28,9 @@ import reactor.core.scheduler.Schedulers;
 import static com.hnkjxy.constant.RedisConstant.USER_TOKEN;
 
 /**
- * @version: java version 1.8
- * @Author: Mr Orange
- * @description:
+ * @version: java version 17
+ * @Author: Mr WzzZ
+ * @description: 身份鉴定
  * @date: 2023-04-29 13:01
  */
 @Slf4j

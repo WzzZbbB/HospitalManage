@@ -19,9 +19,9 @@ import java.nio.file.AccessDeniedException;
 import java.util.Collection;
 
 /**
- * @version: java version 1.8
- * @Author: Mr Orange
- * @description:
+ * @version: java version 17
+ * @Author: Mr WzzZ
+ * @description: 自定义权限鉴定
  * @date: 2023-04-29 14:53
  */
 public class MyAuthorizationManager implements ReactiveAuthorizationManager<AuthorizationContext>{
