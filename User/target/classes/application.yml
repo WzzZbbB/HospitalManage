@@ -1,0 +1,20 @@
+server:
+  port: 8090
+spring:
+  application:
+    name: user
+  cloud:
+    nacos:
+      server-addr: localhost:8848
+
+  datasource:
+    username: root
+    password: wangzhibin
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://aliyun.wzzz.shop:3306/hospita
+    main:
+      allow-bean-definition-overriding: true
+
+mybatis-plus:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.hnkjxy.entity
