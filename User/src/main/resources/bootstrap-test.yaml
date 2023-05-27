@@ -1,0 +1,9 @@
+spring:
+  cloud:
+    nacos:
+      server-addr: aliyun.wzzz.shop:8848
+      discovery:
+        namespace: 9b4b0660-c847-4050-9ae4-ea47fd70ac17
+      config:
+        file-extension: yaml
+        namespace: 9b4b0660-c847-4050-9ae4-ea47fd70ac17

@@ -1,0 +1,11 @@
+spring:
+  cloud:
+    nacos:
+      server-addr: aliyun.wzzz.shop:8848
+      discovery:
+        username: nacos
+        password: nacos
+        namespace: 7fc1f2bf-395b-4742-9658-ff3b36b131f2
+      config:
+        file-extension: yaml
+        namespace: 7fc1f2bf-395b-4742-9658-ff3b36b131f2
