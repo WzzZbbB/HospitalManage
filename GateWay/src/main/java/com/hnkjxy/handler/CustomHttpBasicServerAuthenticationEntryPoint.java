@@ -1,7 +1,6 @@
-package com.hnkjxy.handel;
+package com.hnkjxy.handler;
 
 import cn.hutool.json.JSONUtil;
-import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -10,16 +9,17 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.server.authentication.HttpBasicServerAuthenticationEntryPoint;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
-
 import java.util.HashMap;
 
 /**
- * @version: java version 1.8
- * @Author: Mr Orange
- * @description:
+ * @version: java version 17
+ * @Author: Mr WzzZ
+ * @description: 自定义未认证访问受限URI
  * @date: 2023-04-29 21:55
  */
+
 public class CustomHttpBasicServerAuthenticationEntryPoint extends HttpBasicServerAuthenticationEntryPoint {
+
     @Override
     public Mono<Void> commence(ServerWebExchange exchange, AuthenticationException ex) {
         ServerHttpResponse response = exchange.getResponse();
@@ -32,4 +32,5 @@ public class CustomHttpBasicServerAuthenticationEntryPoint extends HttpBasicServ
         DataBuffer wrap = response.bufferFactory().wrap(bytes);
         return response.writeWith(Mono.just(wrap));
     }
+
 }

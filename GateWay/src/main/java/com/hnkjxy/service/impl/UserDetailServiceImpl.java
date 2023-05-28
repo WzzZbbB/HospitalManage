@@ -1,4 +1,4 @@
-package com.hnkjxy.service;
+package com.hnkjxy.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
@@ -11,7 +11,7 @@ import com.hnkjxy.entity.User;
 import com.hnkjxy.mapper.ButtonMapper;
 import com.hnkjxy.mapper.MenuMapper;
 import com.hnkjxy.mapper.RoleMapper;
-import com.hnkjxy.mapper.UserMapper;
+import com.hnkjxy.service.UserService;
 import com.hnkjxy.utils.RedisUtil;
 import jakarta.annotation.Resource;
 import org.springframework.security.core.Authentication;
@@ -23,20 +23,19 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.PathMatcher;
 import reactor.core.publisher.Mono;
 
-import javax.naming.AuthenticationException;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.hnkjxy.constant.RedisConstant.USER_ROLE;
 
 /**
- * @version: java version 1.8
- * @Author: Mr Orange
- * @description:
+ * @version: java version 17
+ * @Author: Mr WzzZ
+ * @description: 自定义用户信息认证
  * @date: 2023-04-29 14:40
  */
 @Service
-public class MyUserDetailService implements ReactiveUserDetailsService , ReactiveUserDetailsPasswordService {
+public class UserDetailServiceImpl implements ReactiveUserDetailsService , ReactiveUserDetailsPasswordService {
     @Resource
     private UserService userService;
 

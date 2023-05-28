@@ -1,18 +1,10 @@
 package com.hnkjxy.filter;
 
-import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONUtil;
 import com.hnkjxy.component.TokenComponent;
-import com.hnkjxy.entity.User;
-import com.hnkjxy.service.MyUserDetailService;
-import com.hnkjxy.utils.RedisUtil;
-import jakarta.annotation.Resource;
+import com.hnkjxy.service.impl.UserDetailServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.gateway.filter.GatewayFilterChain;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
@@ -25,7 +17,8 @@ import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
-import static com.hnkjxy.constant.RedisConstant.USER_TOKEN;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @version: java version 17
@@ -38,10 +31,10 @@ import static com.hnkjxy.constant.RedisConstant.USER_TOKEN;
 public class JwtTokenAuthenticationFilter implements WebFilter {
     private final TokenComponent tokenComponent;
 
-    private final MyUserDetailService userDetailService;
+    private final UserDetailServiceImpl userDetailService;
 
-
-    public JwtTokenAuthenticationFilter(TokenComponent tokenComponent, MyUserDetailService userDetailService) {
+    @Autowired
+    public JwtTokenAuthenticationFilter(TokenComponent tokenComponent, UserDetailServiceImpl userDetailService) {
         this.tokenComponent = tokenComponent;
         this.userDetailService = userDetailService;
     }
@@ -63,17 +56,12 @@ public class JwtTokenAuthenticationFilter implements WebFilter {
                     response.setStatusCode(HttpStatus.FORBIDDEN);
                     return response.setComplete();
                 }
-                String username = authentication.getName();
-                ServerHttpRequest mutbaleReq = request.mutate().header("X-USER", username).build();
+                String user = authentication.getName();
+                ServerHttpRequest mutbaleReq = request.mutate().header("USER", URLEncoder.encode(user, StandardCharsets.UTF_8)).build();
                 ServerWebExchange mutableExchange = exchange.mutate().request(mutbaleReq).build();
 
                 return chain.filter(mutableExchange).subscribeOn(Schedulers.boundedElastic())
-                        .contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication))
-                        .doOnCancel(() -> log.info("取消"))
-                        .doOnError((error) -> log.error("错误",error.getMessage()))
-                        .doOnSuccess(aVoid -> log.info("Success"))
-                        .log()
-                        .doOnTerminate(() -> log.info("执行完成"));
+                        .contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication));
             }
         }
         return chain.filter(exchange);

@@ -1,12 +1,8 @@
 package com.hnkjxy.service.impl;
 
-import cn.hutool.json.JSONUtil;
 import com.hnkjxy.service.CustomAuthentication;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.stereotype.Service;
-import reactor.core.publisher.Mono;
 
 import java.util.Map;
 
@@ -27,8 +23,7 @@ public class UserNamePwdAuthentication implements CustomAuthentication {
     }
 
     @Override
-    public UsernamePasswordAuthenticationToken createAuthentication(String item) {
-        Map<String,Object> map = JSONUtil.toBean(item, Map.class);
+    public UsernamePasswordAuthenticationToken createAuthentication(Map<String,Object> map) {
         String username = map.get("username").toString();
         String password = map.get("password").toString();
         String uuid = map.get("uuid").toString();

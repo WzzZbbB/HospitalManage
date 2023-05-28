@@ -1,4 +1,4 @@
-package com.hnkjxy.handel;
+package com.hnkjxy.handler;
 
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.server.reactive.ServerHttpResponse;
@@ -10,9 +10,9 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 /**
- * @version: java version 1.8
- * @Author: Mr Orange
- * @description:
+ * @version: java version 17
+ * @Author: Mr WzzZ
+ * @description: 退出成功处理
  * @date: 2023-05-01 18:20
  */
 @Component

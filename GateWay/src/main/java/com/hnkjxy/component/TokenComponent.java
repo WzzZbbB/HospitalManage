@@ -1,16 +1,11 @@
 package com.hnkjxy.component;
 
 import cn.hutool.crypto.SecureUtil;
-import cn.hutool.json.JSONUtil;
 import com.hnkjxy.data.PayloadData;
 import com.hnkjxy.entity.User;
-import com.hnkjxy.utils.JsonUtils;
 import com.hnkjxy.utils.JwtUtil;
-import com.hnkjxy.utils.RedisUtil;
 import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.Payload;
 import com.nimbusds.jose.shaded.json.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -25,8 +20,7 @@ import java.util.stream.Collectors;
 
 import static com.hnkjxy.constant.JwtConstant.TOKEN_USER_INFO;
 import static com.hnkjxy.constant.JwtConstant.TOKEN_USER_INFO_USERNAME;
-import static com.hnkjxy.constant.RedisConstant.USER_TOKEN;
-import static com.hnkjxy.service.MyUserDetailService.removePreFix;
+import static com.hnkjxy.service.impl.UserDetailServiceImpl.removePreFix;
 
 /**
  * @version: java version 17
@@ -43,8 +37,6 @@ public class TokenComponent {
     @Value("${wzzz.auth.expire}")
     private Integer expire;
 
-    @Autowired
-    private RedisUtil redisUtil;
 
     public Integer getExpire() {
         return this.expire;

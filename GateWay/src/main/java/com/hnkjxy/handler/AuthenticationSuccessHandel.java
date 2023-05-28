@@ -1,4 +1,4 @@
-package com.hnkjxy.handel;
+package com.hnkjxy.handler;
 
 import cn.hutool.json.JSONUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -7,10 +7,7 @@ import com.hnkjxy.component.TokenComponent;
 import com.hnkjxy.data.ResponseCode;
 import com.hnkjxy.data.ResponseData;
 import com.hnkjxy.entity.AuthInfo;
-import com.hnkjxy.utils.JsonUtils;
-import com.hnkjxy.utils.RedisUtil;
 import com.nimbusds.jose.shaded.json.JSONObject;
-import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.buffer.DataBuffer;
@@ -18,7 +15,6 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpResponse;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.server.WebFilterExchange;
@@ -28,30 +24,27 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.hnkjxy.constant.JwtConstant.TOKEN_USER_INFO;
-import static com.hnkjxy.constant.RedisConstant.USER_TOKEN;
 
 /**
- * @version: java version 1.8
- * @Author: Mr Orange
- * @description:
+ * @version: java version 17
+ * @Author: Mr WzzZ
+ * @description: 认证成功处理
  * @date: 2023-04-29 21:06
  */
 @Component
 @Slf4j
-public class SuccessLoginHandel extends WebFilterChainServerAuthenticationSuccessHandler {
+public class AuthenticationSuccessHandel extends WebFilterChainServerAuthenticationSuccessHandler {
     private final TokenComponent tokenComponent;
 
     @Autowired
     private StringRedisTemplate redisTemplate;
 
-    public SuccessLoginHandel(TokenComponent tokenComponent) {
+    public AuthenticationSuccessHandel(TokenComponent tokenComponent) {
         this.tokenComponent = tokenComponent;
     }
 

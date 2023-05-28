@@ -31,7 +31,7 @@ public enum ResponseCode {
     /**
      * 鉴权失败
      */
-    UNAUTHORIZED_ERROR(4000, "鉴权失败");
+    UNAUTHORIZED_ERROR(4000, "认证失败");
 
     ResponseCode(Integer code, String message) {
         this.code = code;

@@ -22,10 +22,9 @@ public class TelephoneAuthentication implements CustomAuthentication {
         this.redisTemplate = redisTemplate;
     }
     @Override
-    public UsernamePasswordAuthenticationToken createAuthentication(String item) {
-        Map<String,String> map = JSONUtil.toBean(item, Map.class);
-        String telephone = map.get("phone");
-        String code = map.get("code");
+    public UsernamePasswordAuthenticationToken createAuthentication(Map<String,Object> map) {
+        String telephone = map.get("phone").toString();
+        String code = map.get("code").toString();
         String rightCode = redisTemplate.opsForValue().get(VERIFY_PHONE_CODE + telephone);
         if (!code.equals(rightCode)) {
             return null;
