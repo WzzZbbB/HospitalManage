@@ -7,19 +7,14 @@ import org.apache.ibatis.annotations.Mapper;
 import java.util.List;
 
 /**
- * @version: java version 1.8
- * @Author: Mr Orange
+ * @version: java version 17
+ * @Author: Mr WzzZ
  * @description:
- * @date: 2023-04-29 15:27
+ * @date: 2023-06-06 10:35
  */
 @Mapper
 public interface MenuMapper extends BaseMapper<Menu> {
-    /**
-     * 根据权限ID获取可以访问的菜单
-     * @author Mr WzzZ
-     * @date 2023/5/2
-     * @param roleId 权限ID
-     * @return 菜单URI
-     */
-    List<Menu> getMenuByRoleId(Integer roleId);
+    List<Menu> getCatalogueAndMenuByUserName(String userName);
+
+    List<Menu> getButtonByUserName(String userName);
 }

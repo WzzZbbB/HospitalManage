@@ -1,32 +1,32 @@
 package com.hnkjxy.service.impl;
 
-import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.hnkjxy.entity.Button;
 import com.hnkjxy.entity.Menu;
-import com.hnkjxy.entity.Role;
+import com.hnkjxy.entity.MenuVo;
 import com.hnkjxy.entity.User;
-import com.hnkjxy.mapper.ButtonMapper;
 import com.hnkjxy.mapper.MenuMapper;
 import com.hnkjxy.mapper.RoleMapper;
 import com.hnkjxy.service.UserService;
-import com.hnkjxy.utils.RedisUtil;
+import com.hnkjxy.utils.JsonUtils;
 import jakarta.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Service;
-import org.springframework.util.AntPathMatcher;
-import org.springframework.util.ObjectUtils;
-import org.springframework.util.PathMatcher;
+import org.springframework.util.*;
 import reactor.core.publisher.Mono;
 
 import java.util.*;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.hnkjxy.constant.RedisConstant.USER_ROLE;
+import static com.hnkjxy.utils.MenusUtil.initMenu;
 
 /**
  * @version: java version 17
@@ -44,12 +44,9 @@ public class UserDetailServiceImpl implements ReactiveUserDetailsService , React
 
     @Resource
     private MenuMapper menuMapper;
+    @Autowired
+    private StringRedisTemplate redisTemplate;
 
-    @Resource
-    private RedisUtil redisUtil;
-
-    @Resource
-    private ButtonMapper buttonMapper;
     @Override
     public Mono<UserDetails> updatePassword(UserDetails user, String newPassword) {
         String username = user.getUsername();
@@ -69,56 +66,70 @@ public class UserDetailServiceImpl implements ReactiveUserDetailsService , React
         if (ObjectUtils.isEmpty(user)) {
             return Mono.empty();
         }
-        //查询角色信息
-        List<Role> role = roleMapper.getRoleByUserId(user.getId());
-        if (role == null) {
-            return Mono.empty();
-        }
-
-        String URIS = redisUtil.getString(USER_ROLE + username);
-        List<String> list = JSONUtil.toList(URIS, String.class);
-        Set<String> roles = new HashSet<>(list);
-        if (CollectionUtil.isEmpty(roles)) {
-            Set<String> uris = role.stream().map(item -> item.getRoleName()).collect(Collectors.toSet());
-            //查询路径信息
-            Set<List<Menu>> menus = role.stream().map(item -> menuMapper.getMenuByRoleId(item.getRoleId())).collect(Collectors.toSet());
-            menus.stream().forEach(item -> item.forEach(item2 -> uris.add("menu_"+item2.getMenuUri())));
-
-            Set<List<Button>> buttons = role.stream().map(item -> buttonMapper.getBtnByRoleId(item.getRoleId())).collect(Collectors.toSet());
-            buttons.stream().forEach(item -> item.forEach(item2 -> uris.add(item2.getBtnUri())));
-
-            roles = uris;
-        }
-
-        //设置当前用户的授权信息
-        user.setRoles(roles);
+        String[] menus = queryMenu(username);
         UserDetails userDetails = org.springframework.security.core.userdetails.User.withUsername(username)
-                .password(user.getPassword()).roles(roles.toArray(new String[]{}))
-                .authorities(roles.toArray(new String[]{})).build();
+                .password(user.getPassword())
+                .authorities(menus).build();
         return Mono.just(userDetails);
     }
 
-    public boolean checkUserRoleResource(String path, Authentication authentication) {
-        boolean match = false;
-        if (StrUtil.isBlank(path) || ObjectUtils.isEmpty(authentication)) {
-            return match;
+    /**
+     * 根据用户名查询菜单信息
+     * @Author Mr WzzZ
+     * @Date 2023/6/8
+     * @Param userName 用户名
+     */
+    public String[] queryMenu(String userName) {
+        List<MenuVo> menus = JSONUtil.toList(redisTemplate.opsForValue().get(USER_ROLE + userName), MenuVo.class);
+        if (menus.isEmpty()) {
+            //查询部门的菜单和目录信息
+            List<Menu> catalogueAndMenus = menuMapper.getCatalogueAndMenuByUserName(userName);
+            //查询角色的按钮信息
+            List<Menu> buttons = menuMapper.getButtonByUserName(userName);
+            catalogueAndMenus.addAll(buttons);
+            List<MenuVo> menuVos = initMenu(catalogueAndMenus, 0L, "");
+            redisTemplate.opsForValue().set(USER_ROLE+userName,JsonUtils.deserializer(menuVos),1L,TimeUnit.DAYS);
+            return initUri(menuVos, new ArrayList<>()).toArray(String[]::new);
         }
-        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-        PathMatcher pathMatcher = new AntPathMatcher();
-        for (GrantedAuthority authority : authorities) {
-            match = pathMatcher.match(authority.getAuthority(),path);
-            if (match) {
-                return match;
-            }
-        }
-        return match;
+        return initUri(menus, new ArrayList<>()).toArray(String[]::new);
     }
 
-    public static String removePreFix(String str) {
-        String preFix = "menu_";
-        if (str.toLowerCase().matches("^"+preFix+".*")) {
-            return str.substring(preFix.length());
+
+    /**
+     * 将数结构的MenuVo 转换成 最底层拼接好路径的list
+     * @Author Mr WzzZ
+     * @Date 2023/6/13
+     * @Param menuVos 数结构Menu
+     * @Param list 拼接好的集合
+     * @return java.util.List<java.lang.String>
+     */
+    public static List<String> initUri(List<MenuVo> menuVos,List<String> list) {
+        for (int i = 0; i < menuVos.size(); i++) {
+            if (menuVos.get(i).getChildren() == null) {
+                list.add(menuVos.get(i).getUrl());
+                continue;
+            }
+            initUri(menuVos.get(i).getChildren(),list);
         }
-        return str;
+        return list;
     }
+
+    /**
+     * 判断当前用户是否有权限访问该路径
+     * @Author Mr WzzZ
+     * @Date 2023/6/13
+     * @Param path 当前访问的路径
+     * @Param authentication 当前用户的认证信息
+     * @return boolean
+     */
+    public boolean checkUserRoleResource(String path, Authentication authentication) {
+        PathMatcher pathMatcher = new AntPathMatcher();
+        if (StrUtil.isBlank(path) || ObjectUtils.isEmpty(authentication)) {
+            return false;
+        }
+        Set<String> uriSet = AuthorityUtils.authorityListToSet(authentication.getAuthorities());
+        List<String> list = uriSet.stream().filter(item -> pathMatcher.match(item, path)).toList();
+        return !list.isEmpty();
+    }
+
 }

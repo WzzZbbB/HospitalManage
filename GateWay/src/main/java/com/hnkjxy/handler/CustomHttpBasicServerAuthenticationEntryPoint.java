@@ -1,6 +1,8 @@
 package com.hnkjxy.handler;
 
 import cn.hutool.json.JSONUtil;
+import com.hnkjxy.data.ResponseCode;
+import com.hnkjxy.utils.ResponseUtil;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -23,14 +25,7 @@ public class CustomHttpBasicServerAuthenticationEntryPoint extends HttpBasicServ
     @Override
     public Mono<Void> commence(ServerWebExchange exchange, AuthenticationException ex) {
         ServerHttpResponse response = exchange.getResponse();
-        response.setStatusCode(HttpStatus.UNAUTHORIZED);
-        response.getHeaders().add("Content-Type", MediaType.APPLICATION_JSON_UTF8_VALUE);
-        HashMap<String, Object> result = new HashMap<>(4);
-        result.put("status",502);
-        result.put("message","请先获取权限");
-        byte[] bytes = JSONUtil.toJsonStr(result).getBytes();
-        DataBuffer wrap = response.bufferFactory().wrap(bytes);
-        return response.writeWith(Mono.just(wrap));
+        return ResponseUtil.response(response, ResponseCode.UNAUTHORIZED_ERROR);
     }
 
 }

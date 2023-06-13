@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.expression.spel.ast.Literal;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -27,20 +28,19 @@ public class User {
     private String password;
     private Boolean enabled;
     private Boolean accountNonExpired;
-
     private Boolean accountNonLocked;
     private Boolean credentialsNonExpired;
     @TableField(exist = false)
-    private Set<String> roles;
+    private List<Menu> menus;
 
-    public void setRoles(Set<String> roles) {
-        this.roles = roles;
+    public void setRoles(List<Menu> roles) {
+        this.menus = roles;
     }
 
-    public User(String username, String password, Set<String> roles) {
+    public User(String username, String password, List<Menu> menus) {
         this.username = username;
         this.password = password;
-        this.roles = roles;
+        this.menus = menus;
         this.enabled = true;
         this.accountNonExpired = false;
         this.credentialsNonExpired = false;
@@ -48,8 +48,8 @@ public class User {
     }
 
 
-    public Set<String> getRoles() {
-        return this.roles;
+    public List<Menu> getRoles() {
+        return this.menus;
     }
 
 

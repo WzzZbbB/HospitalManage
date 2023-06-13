@@ -3,11 +3,27 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.hnkjxy.mapper.MenuMapper">
-    <select id="getMenuByRoleId" resultType="menu">
-        SELECT menu.menu_id,menu.menu_uri
-        FROM menu
-        LEFT JOIN role_menu ON role_menu.menu_id = menu.menu_id
-        WHERE role_menu.role_id = #{roleId}
+    <sql id="menusField">
+        m.menu_id,m.menu_name,m.parent_id,m.path,m.menu_type,m.visible,m.icon,m.create_by,m.create_time,m.update_by,m.update_time
+    </sql>
+
+    <select id="getCatalogueAndMenuByUserName" resultType="menu">
+        SELECT
+        <include refid="menusField"/>
+        FROM user_dept ud
+        INNER JOIN dept d ON d.dept_id = ud.dept_id
+        INNER JOIN dept_menu dm ON dm.dept_id = d.dept_id
+        INNER JOIN menu m ON m.menu_id = dm.menu_id
+        WHERE ud.user_name = #{userName}
     </select>
 
+    <select id="getButtonByUserName" resultType="menu">
+        SELECT
+        <include refid="menusField"/>
+        FROM user_role ur
+        INNER JOIN role r ON r.role_id = ur.role_id
+        INNER JOIN role_menu rm ON rm.role_id = r.role_id
+        INNER JOIN menu m ON m.menu_id = rm.menu_id
+        WHERE ur.user_name = #{userName}
+    </select>
 </mapper>

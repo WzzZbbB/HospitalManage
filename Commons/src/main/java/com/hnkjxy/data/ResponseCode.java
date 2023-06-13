@@ -29,9 +29,15 @@ public enum ResponseCode {
     BUSINESS_ERROR(3000, "业务处理失败"),
 
     /**
-     * 鉴权失败
+     * 认证失败
+     */
+    NO_PERMISSION(5000, "权限不足"),
+
+    /**
+     * 认证失败
      */
     UNAUTHORIZED_ERROR(4000, "认证失败");
+
 
     ResponseCode(Integer code, String message) {
         this.code = code;

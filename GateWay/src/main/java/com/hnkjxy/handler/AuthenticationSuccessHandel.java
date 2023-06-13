@@ -1,12 +1,12 @@
 package com.hnkjxy.handler;
 
 import cn.hutool.json.JSONUtil;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.hnkjxy.component.TokenComponent;
-import com.hnkjxy.data.ResponseCode;
-import com.hnkjxy.data.ResponseData;
 import com.hnkjxy.entity.AuthInfo;
+import com.hnkjxy.entity.Menu;
+import com.hnkjxy.utils.JsonUtils;
 import com.nimbusds.jose.shaded.json.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,19 +16,20 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.security.web.server.authentication.WebFilterChainServerAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.hnkjxy.constant.JwtConstant.TOKEN_USER_INFO;
+import static com.hnkjxy.constant.JwtConstant.*;
+import static com.hnkjxy.constant.RedisConstant.USER_ROLE;
 
 /**
  * @version: java version 17
@@ -41,11 +42,12 @@ import static com.hnkjxy.constant.JwtConstant.TOKEN_USER_INFO;
 public class AuthenticationSuccessHandel extends WebFilterChainServerAuthenticationSuccessHandler {
     private final TokenComponent tokenComponent;
 
-    @Autowired
-    private StringRedisTemplate redisTemplate;
+    private final StringRedisTemplate redisTemplate;
 
-    public AuthenticationSuccessHandel(TokenComponent tokenComponent) {
+    @Autowired
+    public AuthenticationSuccessHandel(TokenComponent tokenComponent, StringRedisTemplate redisTemplate) {
         this.tokenComponent = tokenComponent;
+        this.redisTemplate = redisTemplate;
     }
 
     @Override
@@ -59,45 +61,30 @@ public class AuthenticationSuccessHandel extends WebFilterChainServerAuthenticat
         ObjectMapper objectMapper = new ObjectMapper();
         byte[] dataBytes;
 
-        try {
-            User user = (User) authentication.getPrincipal();
-            com.hnkjxy.entity.User buildUser = buildUser(user);
+        //获取User对象
+        User user = (User) authentication.getPrincipal();
 
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put(TOKEN_USER_INFO,buildUser);
-            String token = tokenComponent.encode(jsonObject);
+        //将UserName存入Token
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put(TOKEN_USER_INFO_USERNAME,user.getUsername());
+        String[] uris = AuthorityUtils.authorityListToSet(user.getAuthorities())
+                .toArray(String[]::new);
+        jsonObject.put(TOKEN_USER_INFO,uris);
+        Map<String,String> tokenMap = tokenComponent.encode(jsonObject);
 
-            buildUser.setRoles(buildUser.getRoles().stream().filter
-                            (item -> item.toLowerCase().matches("^menu_.*")).collect(Collectors.toSet())
-                    .stream().map(item -> item.substring(5)).collect(Collectors.toSet()));
+        //取出Token和TokenId
+        String token = tokenMap.get("token");
+        String jti = tokenMap.get("jti");
 
-            AuthInfo authInfo = AuthInfo.builder()
-                    .access_token(token)
-                    .jti(UUID.randomUUID().toString())
-                    .expires_in(tokenComponent.getExpire())
-                    .user_info(buildUser).build();
-            dataBytes = objectMapper.writeValueAsBytes(authInfo);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-            ResponseData<Object> res = new ResponseData<>(ResponseCode.UNAUTHORIZED_ERROR);
-            dataBytes = JSONUtil.toJsonStr(res).getBytes();
-        }
+        //将当前生成的Token以JTI为键存入Redis
+        redisTemplate.opsForValue().set(TOKEN+jti,token,7L, TimeUnit.DAYS);
+
+        AuthInfo authInfo = AuthInfo.builder()
+                .accessToken(token)
+                .jti(jti).build();
+        dataBytes = JsonUtils.deserializer(authInfo).getBytes();
+
         DataBuffer wrap = response.bufferFactory().wrap(dataBytes);
         return response.writeWith(Mono.just(wrap));
     }
-
-    private com.hnkjxy.entity.User buildUser(User user) {
-        com.hnkjxy.entity.User authUser = new com.hnkjxy.entity.User();
-        authUser.setUsername(user.getUsername());
-        authUser.setEnabled(user.isEnabled());
-        authUser.setAccountNonLocked(user.isAccountNonLocked());
-        authUser.setAccountNonExpired(user.isAccountNonExpired());
-        authUser.setCredentialsNonExpired(user.isCredentialsNonExpired());
-        if (!CollectionUtils.isEmpty(user.getAuthorities())) {
-            Set<String> collect = user.getAuthorities().stream().map(item -> item.getAuthority()).collect(Collectors.toSet());
-            authUser.setRoles(collect);
-        }
-        return authUser;
-    }
-
 }

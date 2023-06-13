@@ -17,55 +17,43 @@ import java.time.LocalDateTime;
  * @version: java version 17
  * @Author: Mr WzzZ
  * @description:
- * @date: 2023-06-06 10:29
+ * @date: 2023-06-06 10:25
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
-public class Menu implements Serializable {
+public class Dept implements Serializable {
     /**
-     * 菜单ID
+     * 部门ID
      * @Author Mr WzzZ
      * @Date 2023/6/6
      */
-    private Long menuId;
+    private Long deptId;
     /**
-     * 菜单名称
-     * @Author Mr WzzZ
-     * @Date 2023/6/6
-     */
-    private String menuName;
-    /**
-     * 父级ID
+     * 父级部门ID
      * @Author Mr WzzZ
      * @Date 2023/6/6
      */
     private Long parentId;
     /**
-     * 菜单路径
+     * 部门名称
      * @Author Mr WzzZ
      * @Date 2023/6/6
      */
-    private String path;
+    private String deptName;
     /**
-     * 菜单类型（M 目录，C 菜单，F 按钮）
+     * 部门状态
      * @Author Mr WzzZ
      * @Date 2023/6/6
      */
-    private char menuType;
+    private boolean status;
     /**
-     * 是否显示标识
+     * 部门删除标志
      * @Author Mr WzzZ
      * @Date 2023/6/6
      */
-    private boolean visible;
-    /**
-     * 图标
-     * @Author Mr WzzZ
-     * @Date 2023/6/6
-     */
-    private String icon;
+    private boolean delFlag;
     /**
      * 创建者
      * @Author Mr WzzZ

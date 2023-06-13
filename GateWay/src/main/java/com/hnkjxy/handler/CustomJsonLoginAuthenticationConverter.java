@@ -43,9 +43,7 @@ public class CustomJsonLoginAuthenticationConverter {
                         }
                         CustomAuthentication customAuthentication = setAuthenticationType(request);
                         Map<String,Object> map = mapper.readValue(body.asInputStream(), Map.class);
-                        return Mono.just(
-                                customAuthentication.createAuthentication(map)
-                        );
+                        return Mono.just(customAuthentication.createAuthentication(map));
                     } catch (IOException e) {
                         return Mono.error(new LoginException("登录错误"));
                     }
@@ -53,9 +51,6 @@ public class CustomJsonLoginAuthenticationConverter {
     }
 
     private static boolean checkInit(ServerHttpRequest request) {
-        if (!request.getMethod().matches("POST")){
-            return false;
-        }
         return Objects.requireNonNull(request.getHeaders().getFirst("Content-Type")).equalsIgnoreCase(MediaType.APPLICATION_JSON_VALUE);
     }
 

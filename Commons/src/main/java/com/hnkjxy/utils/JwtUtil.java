@@ -7,10 +7,7 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.shaded.json.JSONObject;
 
 import java.text.ParseException;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * @version: java version 1.8
@@ -19,20 +16,31 @@ import java.util.UUID;
  * @date: 2023-04-29 22:24
  */
 public final class JwtUtil {
-    public static String encode(JWSAlgorithm algorithm, JSONObject payLoadObject, String secret,Integer expire) {
+    /**
+     * 生成Token
+     * @Author Mr WzzZ
+     * @Date 2023/5/29
+     * @Param algorithm 加密算法
+     * @Param payLoadObject Token信息
+     * @Param secret Token密钥
+     * @Param expire Token过期时间
+     * @return java.lang.String
+     */
+    public static Map<String, String> encode(JWSAlgorithm algorithm, JSONObject payLoadObject, String secret) {
         //1. 头部
         JWSHeader jwsHeader =
                         //加密算法
                 new JWSHeader.Builder(algorithm)
-                        //静态常量
+                        //类型
                         .type(JOSEObjectType.JWT)
                         .build();
 
         //2.载荷
         //可以传String，Json，或Map
-        PayloadData payloadData = getPayloadData(payLoadObject, expire);
+        PayloadData payloadData = getPayloadData(payLoadObject);
         Payload payload = new Payload(JsonUtils.deserializer(payloadData));
-
+        Map<String,String> tokenMap = new HashMap<>();
+        tokenMap.put("jti",payloadData.getJti());
 
         try {
             //3.签名器
@@ -41,7 +49,8 @@ public final class JwtUtil {
             JWSObject jwsObject = new JWSObject(jwsHeader, payload);
             //进行签名
             jwsObject.sign(jwsSigner);
-            return jwsObject.serialize();
+            tokenMap.put("token",jwsObject.serialize());
+            return tokenMap;
         } catch (JOSEException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
@@ -68,12 +77,10 @@ public final class JwtUtil {
         return null;
     }
 
-    private static PayloadData getPayloadData(JSONObject payloadContent,Integer expire) {
+    private static PayloadData getPayloadData(JSONObject payloadContent) {
         Date now = new Date();
-        Date exp = DateUtil.addDate(now, Calendar.SECOND,expire);
         PayloadData payloadData = new PayloadData();
         payloadData.setIat(now.getTime());
-        payloadData.setExp(exp.getTime());
         payloadData.setPayloadContent(payloadContent);
         payloadData.setJti(UUID.randomUUID().toString());
         return payloadData;

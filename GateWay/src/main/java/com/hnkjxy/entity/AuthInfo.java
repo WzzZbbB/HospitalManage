@@ -12,8 +12,7 @@ import lombok.Data;
 @Data
 @Builder
 public class AuthInfo {
-    private String access_token;
-    private User user_info;
-    private Integer expires_in;
+    private String accessToken;
+    private Integer expiresIn;
     private String jti;
 }

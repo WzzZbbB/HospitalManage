@@ -6,9 +6,9 @@ import com.hnkjxy.component.TokenComponent;
 import com.hnkjxy.filter.JwtTokenAuthenticationFilter;
 import com.hnkjxy.handler.*;
 import com.hnkjxy.service.impl.UserDetailServiceImpl;
-import jakarta.annotation.Resource;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
@@ -39,21 +39,17 @@ import reactor.core.publisher.Mono;
  */
 @Configuration
 @EnableWebFluxSecurity
+@RefreshScope
+@RequiredArgsConstructor
 public class SecurityConfig {
     @Value("${wzzz.url.white}")
     private String[] excludeAuthPages;
 
-    @Resource
-    UserDetailServiceImpl userDetailServiceImpl;
-
-    @Autowired
-    private StringRedisTemplate redisTemplate;
-
-    @Autowired
-    private ObjectMapper mapper;
-
-    @Autowired
-    private TokenComponent tokenComponent;
+    private final UserDetailServiceImpl userDetailServiceImpl;
+    private final StringRedisTemplate redisTemplate;
+    private final ObjectMapper mapper;
+    private final TokenComponent tokenComponent;
+    private final AuthenticationSuccessHandel successHandel;
 
     /**
      * 定义密码加密规则
@@ -168,7 +164,7 @@ public class SecurityConfig {
         AuthenticationWebFilter filter = new AuthenticationWebFilter(authenticationManager());
         filter.setSecurityContextRepository(securityContextRepository());
         filter.setAuthenticationConverter(CustomJsonLoginAuthenticationConverter.jsonBodyAuthenticationConverter());
-        filter.setAuthenticationSuccessHandler(new AuthenticationSuccessHandel(tokenComponent));
+        filter.setAuthenticationSuccessHandler(successHandel);
         filter.setAuthenticationFailureHandler(new AuthenticationFailHandel());
         filter.setRequiresAuthenticationMatcher(
                 ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, "/auth/login"));

@@ -15,11 +15,11 @@ import java.util.List;
 @Mapper
 public interface RoleMapper extends BaseMapper<Role> {
     /**
-     * 根据用户ID获取权限信息
+     * 根据用户名获取权限信息
      * @author Mr OY
      * @date 2023/5/2
-     * @param userId
+     * @param userName
      * @return 获取权限
      */
-    List<Role> getRoleByUserId(Integer userId);
+    List<Role> getRoleAndAuthorityByUserName(String userName);
 }

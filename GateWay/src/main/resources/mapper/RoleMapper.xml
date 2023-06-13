@@ -3,11 +3,15 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.hnkjxy.mapper.RoleMapper">
-    <select id="getRoleByUserId" resultType="role">
-        SELECT role.role_id,role.role_name
-        FROM role
-        LEFT JOIN user_role ON user_role.role_id = role.role_id
-        WHERE user_role.user_id = #{userId}
+    <select id="getRoleAndAuthorityByUserName" resultType="role">
+        SELECT r.role_name,r.role_uris,
+        GROUP_CONCAT(DISTINCT auth.authority_uris) as authority_uris
+        FROM user_role ur
+        INNER JOIN role r ON FIND_IN_SET(r.role_id,ur.role_id)
+        INNER JOIN authority_role ar ON r.role_id = ar.role_id
+        INNER JOIN authority auth ON FIND_IN_SET(auth.authority_id,ar.authority_id)
+        WHERE ur.username = #{userName}
+        GROUP BY r.role_id
     </select>
 
 </mapper>

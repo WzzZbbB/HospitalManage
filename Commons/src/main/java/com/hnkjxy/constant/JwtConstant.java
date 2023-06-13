@@ -7,7 +7,7 @@ package com.hnkjxy.constant;
  * @date: 2023-04-30 14:06
  */
 public interface JwtConstant {
-    String TOKEN = "Authorization";
+    String TOKEN = "Token:";
     String TOKEN_PREFIX="Bearer ";
     String TOKEN_USER_INFO = "user_info";
     String TOKEN_USER_INFO_USERNAME = "username";
