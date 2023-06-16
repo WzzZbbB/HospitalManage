@@ -2,8 +2,8 @@ package com.hnkjxy.filter;
 
 import cn.hutool.core.util.StrUtil;
 import com.hnkjxy.component.TokenComponent;
-import com.hnkjxy.data.ResponseCode;
 import com.hnkjxy.service.impl.UserDetailServiceImpl;
+import com.hnkjxy.utils.JsonUtils;
 import com.hnkjxy.utils.ResponseUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +19,8 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+
+import static com.hnkjxy.data.ErrorResponseCode.NO_PERMISSION;
 
 /**
  * @version: java version 17
@@ -53,10 +55,9 @@ public class JwtTokenAuthenticationFilter implements WebFilter {
         //判断当前访问路径是否在权限中
         boolean success  = userDetailService.checkUserRoleResource(request.getURI().getPath(),authentication);
         if (!success) {
-            return ResponseUtil.response(response,ResponseCode.NO_PERMISSION);
+            return ResponseUtil.response(response, NO_PERMISSION);
         }
-        String userName = authentication.getName();
-        ServerHttpRequest mutbaleReq = request.mutate().header("USER", URLEncoder.encode(userName, StandardCharsets.UTF_8)).build();
+        ServerHttpRequest mutbaleReq = request.mutate().header("USER", URLEncoder.encode(JsonUtils.deserializer(authentication.getPrincipal()), StandardCharsets.UTF_8)).build();
         ServerWebExchange mutableExchange = exchange.mutate().request(mutbaleReq).build();
 
         return chain.filter(mutableExchange).subscribeOn(Schedulers.boundedElastic())

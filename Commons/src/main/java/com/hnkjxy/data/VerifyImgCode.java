@@ -1,26 +1,22 @@
 package com.hnkjxy.data;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 /**
- * @version: java version 1.8
- * @Author: Mr Orange
- * @description:
+ * @version: java version 17
+ * @Author: Mr WzzZ
+ * @description: 图片验证码实体
  * @date: 2023-05-02 21:43
  */
-public class Code {
+public class VerifyImgCode {
     private String imageBase64;
     private String cutImageBase64;
     private Integer x;
     private Integer y;
     private String uuid;
 
-    public Code() {
+    public VerifyImgCode() {
     }
 
-    public Code(String imageBase64, String cutImageBase64, Integer x, Integer y, String uuid) {
+    public VerifyImgCode(String imageBase64, String cutImageBase64, Integer x, Integer y, String uuid) {
         this.imageBase64 = imageBase64;
         this.cutImageBase64 = cutImageBase64;
         this.x = x;

@@ -4,6 +4,7 @@ import cn.hutool.json.JSONUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.hnkjxy.component.TokenComponent;
+import com.hnkjxy.data.ResponseData;
 import com.hnkjxy.entity.AuthInfo;
 import com.hnkjxy.entity.Menu;
 import com.hnkjxy.utils.JsonUtils;
@@ -82,7 +83,8 @@ public class AuthenticationSuccessHandel extends WebFilterChainServerAuthenticat
         AuthInfo authInfo = AuthInfo.builder()
                 .accessToken(token)
                 .jti(jti).build();
-        dataBytes = JsonUtils.deserializer(authInfo).getBytes();
+        ResponseData<AuthInfo> responseData = new ResponseData<>(200,"登陆成功",authInfo);
+        dataBytes = JsonUtils.deserializer(responseData).getBytes();
 
         DataBuffer wrap = response.bufferFactory().wrap(dataBytes);
         return response.writeWith(Mono.just(wrap));

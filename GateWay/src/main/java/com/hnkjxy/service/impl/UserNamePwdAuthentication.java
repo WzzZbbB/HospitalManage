@@ -9,7 +9,7 @@ import java.util.Map;
 import static com.hnkjxy.constant.RedisConstant.VERIFY_IMG_CODE;
 
 /**
- * @version: java version 1.8
+ * @version: java version 17
  * @Author: Mr Orange
  * @description:
  * @date: 2023-05-27 14:08

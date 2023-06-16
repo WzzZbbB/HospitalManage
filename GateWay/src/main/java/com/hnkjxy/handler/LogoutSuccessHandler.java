@@ -1,8 +1,7 @@
 package com.hnkjxy.handler;
 
-import com.hnkjxy.data.ResponseCode;
+import com.hnkjxy.data.SuccessResponseCode;
 import com.hnkjxy.utils.ResponseUtil;
-import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.server.WebFilterExchange;
@@ -23,6 +22,6 @@ public class LogoutSuccessHandler implements ServerLogoutSuccessHandler {
     public Mono<Void> onLogoutSuccess(WebFilterExchange exchange, Authentication authentication) {
         ServerWebExchange serverWebExchange = exchange.getExchange();
         ServerHttpResponse response = serverWebExchange.getResponse();
-        return ResponseUtil.response(response, ResponseCode.SUCCESS);
+        return ResponseUtil.response(response, SuccessResponseCode.SUCCESS);
     }
 }

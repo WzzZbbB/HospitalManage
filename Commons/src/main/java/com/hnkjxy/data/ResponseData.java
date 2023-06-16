@@ -2,13 +2,15 @@ package com.hnkjxy.data;
 
 import lombok.NonNull;
 
+import java.io.Serializable;
+
 /**
  * @version: java version 1.8
  * @Author: Mr Orange
  * @description:
  * @date: 2023-04-30 14:26
  */
-public class ResponseData<T>{
+public class ResponseData<T> implements Serializable {
     /**
      * 返回码
      */
@@ -65,5 +67,27 @@ public class ResponseData<T>{
 
     public void setData(T data) {
         this.data = data;
+    }
+
+    public static <T> ResponseData<T> success() {
+        return new ResponseData<>(SuccessResponseCode.SUCCESS);
+    }
+
+    public static <T> ResponseData<T> success(SuccessResponseCode successResponseCode, T data) {
+        return new ResponseData<>(successResponseCode,data);
+    }
+
+    public static <T> ResponseData<T> success(Integer code,String message,T data){
+        return new ResponseData<>(code,message,data);
+    }
+
+    public static <T> ResponseData<T> failure(ErrorResponseCode responseCode) {
+        ResponseData<T> response = new ResponseData<>(responseCode);
+        response.setData(null);
+        return response;
+    }
+
+    public static <T> ResponseData<T> failure(Integer code,String message,T data){
+        return new ResponseData<>(code,message,data);
     }
 }

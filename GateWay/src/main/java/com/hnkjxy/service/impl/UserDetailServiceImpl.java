@@ -1,5 +1,6 @@
 package com.hnkjxy.service.impl;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -11,7 +12,10 @@ import com.hnkjxy.mapper.RoleMapper;
 import com.hnkjxy.service.UserService;
 import com.hnkjxy.utils.JsonUtils;
 import jakarta.annotation.Resource;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -35,17 +39,14 @@ import static com.hnkjxy.utils.MenusUtil.initMenu;
  * @date: 2023-04-29 14:40
  */
 @Service
+@RequiredArgsConstructor
+@RefreshScope
 public class UserDetailServiceImpl implements ReactiveUserDetailsService , ReactiveUserDetailsPasswordService {
-    @Resource
-    private UserService userService;
-
-    @Resource
-    private RoleMapper roleMapper;
-
-    @Resource
-    private MenuMapper menuMapper;
-    @Autowired
-    private StringRedisTemplate redisTemplate;
+    private final UserService userService;
+    private final MenuMapper menuMapper;
+    private final StringRedisTemplate redisTemplate;
+    @Value("${wzzz.url.white}")
+    private String[] excludeAuthPages;
 
     @Override
     public Mono<UserDetails> updatePassword(UserDetails user, String newPassword) {
@@ -124,6 +125,10 @@ public class UserDetailServiceImpl implements ReactiveUserDetailsService , React
      */
     public boolean checkUserRoleResource(String path, Authentication authentication) {
         PathMatcher pathMatcher = new AntPathMatcher();
+        List<String> whiteUri = Arrays.stream(excludeAuthPages).filter(item -> pathMatcher.match(path, item)).toList();
+        if (CollectionUtil.isNotEmpty(whiteUri)) {
+            return true;
+        }
         if (StrUtil.isBlank(path) || ObjectUtils.isEmpty(authentication)) {
             return false;
         }

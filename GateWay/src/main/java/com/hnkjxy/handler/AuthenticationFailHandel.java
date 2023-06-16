@@ -1,14 +1,6 @@
 package com.hnkjxy.handler;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hnkjxy.data.ResponseCode;
-import com.hnkjxy.data.ResponseData;
-import com.hnkjxy.entity.User;
 import com.hnkjxy.utils.ResponseUtil;
-import org.springframework.core.io.buffer.DataBuffer;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.server.WebFilterExchange;
@@ -16,6 +8,8 @@ import org.springframework.security.web.server.authentication.ServerAuthenticati
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+
+import static com.hnkjxy.data.ErrorResponseCode.UNAUTHORIZED_ERROR;
 
 /**
  * @version: java version 17
@@ -29,7 +23,7 @@ public class AuthenticationFailHandel implements ServerAuthenticationFailureHand
     public Mono<Void> onAuthenticationFailure(WebFilterExchange webFilterExchange, AuthenticationException exception) {
         ServerWebExchange exchange = webFilterExchange.getExchange();
         ServerHttpResponse response = exchange.getResponse();
-        return ResponseUtil.response(response,ResponseCode.UNAUTHORIZED_ERROR);
+        return ResponseUtil.response(response, UNAUTHORIZED_ERROR);
     }
 
 }

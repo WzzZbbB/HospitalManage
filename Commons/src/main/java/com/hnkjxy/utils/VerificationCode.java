@@ -1,14 +1,13 @@
 package com.hnkjxy.utils;
 
 import cn.hutool.core.codec.Base64Encoder;
-import com.hnkjxy.data.Code;
+import com.hnkjxy.data.VerifyImgCode;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
@@ -43,14 +42,14 @@ public class VerificationCode {
     private static int SLIDER_IMG_OUT_PADDING = 1;
 
 
-    public static Code getVerificationCode() throws IOException {
+    public static VerifyImgCode getVerificationCode() throws IOException {
         BufferedImage srcImage = getRandomImage("C:\\Users\\13913\\Desktop\\code\\");
         int locationX = CUT_WIDTH + new Random().nextInt(srcImage.getWidth() - CUT_WIDTH * 3);
         int locationY = CUT_HEIGHT + new Random().nextInt(srcImage.getHeight() - CUT_HEIGHT) / 2;
         BufferedImage markImage = new BufferedImage(CUT_WIDTH,CUT_HEIGHT,BufferedImage.TYPE_4BYTE_ABGR);
         int[][] data = getBlockData();
         cutImgByTemplate(srcImage,markImage,data,locationX,locationY);
-        return new Code(getImageBASE64(srcImage),getImageBASE64(markImage),locationX,locationY,UUID.randomUUID().toString());
+        return new VerifyImgCode(getImageBASE64(srcImage),getImageBASE64(markImage),locationX,locationY,UUID.randomUUID().toString());
     }
 
 

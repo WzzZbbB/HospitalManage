@@ -1,17 +1,13 @@
 package com.hnkjxy.handler;
 
-import cn.hutool.json.JSONUtil;
-import com.hnkjxy.data.ResponseCode;
 import com.hnkjxy.utils.ResponseUtil;
-import org.springframework.core.io.buffer.DataBuffer;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.server.authentication.HttpBasicServerAuthenticationEntryPoint;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
-import java.util.HashMap;
+
+import static com.hnkjxy.data.ErrorResponseCode.UNAUTHORIZED_ERROR;
 
 /**
  * @version: java version 17
@@ -25,7 +21,7 @@ public class CustomHttpBasicServerAuthenticationEntryPoint extends HttpBasicServ
     @Override
     public Mono<Void> commence(ServerWebExchange exchange, AuthenticationException ex) {
         ServerHttpResponse response = exchange.getResponse();
-        return ResponseUtil.response(response, ResponseCode.UNAUTHORIZED_ERROR);
+        return ResponseUtil.response(response, UNAUTHORIZED_ERROR);
     }
 
 }

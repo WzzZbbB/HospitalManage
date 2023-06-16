@@ -1,6 +1,7 @@
 package com.hnkjxy.entity;
 
 import com.baomidou.mybatisplus.annotation.TableField;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,7 +25,10 @@ import java.util.Set;
 @NoArgsConstructor
 public class User {
     private Integer id;
+
+    @NotNull(message = "userName不能为空")
     private String username;
+
     private String password;
     private Boolean enabled;
     private Boolean accountNonExpired;
